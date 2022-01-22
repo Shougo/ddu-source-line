@@ -22,5 +22,5 @@ https://github.com/Shougo/ddu-kind-file
 
 ```vim
 " Use line source.
-call ddu#start([{'name': 'line'}])
+call ddu#start({'sources': [{'name': 'line'}]})
 ```
