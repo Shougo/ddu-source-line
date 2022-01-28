@@ -19,7 +19,7 @@ export class Source extends BaseSource<Params> {
     return new ReadableStream({
       async start(controller) {
         const bufnr = args.context.bufNr;
-        const lines = await fn.getline(args.denops, 1, "$");
+        const lines = await fn.getbufline(args.denops, bufnr, 1, "$");
         controller.enqueue(lines.map((line, i) => {
           return {
             word: line,
