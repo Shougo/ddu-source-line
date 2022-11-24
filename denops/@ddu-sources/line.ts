@@ -4,26 +4,26 @@ import {
   Item,
 } from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
 import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.3.1/file.ts#^";
+import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.3.1/file.ts";
 
 type Params = {
-  range: 'window' | 'buffer';
+  range: "window" | "buffer";
 };
 
 export class Source extends BaseSource<Params> {
-  kind = "file";
+  override kind = "file";
 
-  winBegin = 0;
-  winEnd = 0;
+  private winBegin = 0;
+  private winEnd = 0;
 
-  async onInit(args: {
+  override async onInit(args: {
     denops: Denops;
   }): Promise<void> {
     this.winBegin = await fn.line(args.denops, "w0");
     this.winEnd = await fn.line(args.denops, "w$");
   }
 
-  gather(args: {
+  override gather(args: {
     denops: Denops;
     context: Context;
     sourceParams: Params;
@@ -51,9 +51,9 @@ export class Source extends BaseSource<Params> {
     });
   }
 
-  params(): Params {
+  override params(): Params {
     return {
-      range: 'buffer',
+      range: "buffer",
     };
   }
 }
