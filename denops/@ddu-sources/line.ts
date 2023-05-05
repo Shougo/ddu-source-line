@@ -15,12 +15,14 @@ export class Source extends BaseSource<Params> {
 
   private winBegin = 0;
   private winEnd = 0;
+  private lineNr = 0;
 
   override async onInit(args: {
     denops: Denops;
   }): Promise<void> {
     this.winBegin = await fn.line(args.denops, "w0");
     this.winEnd = await fn.line(args.denops, "w$");
+    this.lineNr = await fn.line(args.denops, ".");
   }
 
   override gather(args: {
@@ -31,14 +33,15 @@ export class Source extends BaseSource<Params> {
     const windowRange = args.sourceParams?.range == "window";
     const begin = windowRange ? this.winBegin : 1;
     const end = windowRange ? this.winEnd : "$";
+    const lineNr = this.lineNr;
 
     return new ReadableStream({
       async start(controller) {
         const bufnr = args.context.bufNr;
-        const lines = await fn.getbufline(args.denops, bufnr, begin, end);
-        const padding = "0".repeat(String(lines.length).length);
+        const bufLines = await fn.getbufline(args.denops, bufnr, begin, end);
+        const padding = "0".repeat(String(bufLines.length).length);
         const slice = -1 * padding.length;
-        controller.enqueue(lines.map((line, i) => {
+        const items = bufLines.map((line, i) => {
           return {
             word: line,
             display: `${(padding + (i + begin)).slice(slice)}: ${line}`,
@@ -47,7 +50,13 @@ export class Source extends BaseSource<Params> {
               lineNr: i + begin,
             },
           };
-        }));
+        });
+
+        controller.enqueue(
+          items.filter((item) => item?.action?.lineNr >= lineNr).concat(
+            items.filter((item) => item?.action?.lineNr < lineNr),
+          ),
+        );
 
         controller.close();
       },
