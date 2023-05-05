@@ -2,9 +2,9 @@ import {
   BaseSource,
   Context,
   Item,
-} from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.3.2/file.ts";
+} from "https://deno.land/x/ddu_vim@v2.8.4/types.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.8.4/deps.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.4.0/file.ts";
 
 type Params = {
   range: "window" | "buffer";
@@ -36,9 +36,12 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         const bufnr = args.context.bufNr;
         const lines = await fn.getbufline(args.denops, bufnr, begin, end);
+        const padding = "0".repeat(String(lines.length).length);
+        const slice = -1 * padding.length;
         controller.enqueue(lines.map((line, i) => {
           return {
             word: line,
+            display: `${(padding + (i + begin)).slice(slice)}: ${line}`,
             action: {
               bufNr: bufnr,
               lineNr: i + begin,
