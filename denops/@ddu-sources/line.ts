@@ -2,9 +2,9 @@ import {
   BaseSource,
   Context,
   Item,
-} from "https://deno.land/x/ddu_vim@v2.8.4/types.ts";
-import { Denops, fn } from "https://deno.land/x/ddu_vim@v2.8.4/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.4.0/file.ts";
+} from "https://deno.land/x/ddu_vim@v3.9.0/types.ts";
+import { Denops, fn } from "https://deno.land/x/ddu_vim@v3.9.0/deps.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_file@v0.7.1/file.ts";
 
 type Params = {
   range: "window" | "buffer";
@@ -13,16 +13,16 @@ type Params = {
 export class Source extends BaseSource<Params> {
   override kind = "file";
 
-  private winBegin = 0;
-  private winEnd = 0;
-  private lineNr = 0;
+  #winBegin = 0;
+  #winEnd = 0;
+  #lineNr = 0;
 
   override async onInit(args: {
     denops: Denops;
   }): Promise<void> {
-    this.winBegin = await fn.line(args.denops, "w0");
-    this.winEnd = await fn.line(args.denops, "w$");
-    this.lineNr = await fn.line(args.denops, ".");
+    this.#winBegin = await fn.line(args.denops, "w0");
+    this.#winEnd = await fn.line(args.denops, "w$");
+    this.#lineNr = await fn.line(args.denops, ".");
   }
 
   override gather(args: {
@@ -31,9 +31,9 @@ export class Source extends BaseSource<Params> {
     sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
     const windowRange = args.sourceParams?.range == "window";
-    const begin = windowRange ? this.winBegin : 1;
-    const end = windowRange ? this.winEnd : "$";
-    const lineNr = this.lineNr;
+    const begin = windowRange ? this.#winBegin : 1;
+    const end = windowRange ? this.#winEnd : "$";
+    const lineNr = this.#lineNr;
 
     return new ReadableStream({
       async start(controller) {
