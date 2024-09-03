@@ -1,13 +1,10 @@
-import {
-  BaseSource,
-  type Context,
-  type Item,
-} from "jsr:@shougo/ddu-vim@^5.0.0/types";
+import { type Context, type Item } from "jsr:@shougo/ddu-vim@~6.1.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~6.1.0/source";
 
-import { type ActionData } from "jsr:@shougo/ddu-kind-file@^0.8.0";
+import { type ActionData } from "jsr:@shougo/ddu-kind-file@~0.9.0";
 
-import type { Denops } from "jsr:@denops/core@^7.0.0";
-import * as fn from "jsr:@denops/std@^7.0.1/function";
+import type { Denops } from "jsr:@denops/core@~7.0.0";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
 
 type Params = {
   range: "window" | "buffer";
