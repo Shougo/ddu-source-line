@@ -1,13 +1,14 @@
-import { type Context, type Item } from "jsr:@shougo/ddu-vim@~6.1.0/types";
-import { BaseSource } from "jsr:@shougo/ddu-vim@~6.1.0/source";
+import { type Context, type Item } from "jsr:@shougo/ddu-vim@~6.4.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~6.4.0/source";
 
 import { type ActionData } from "jsr:@shougo/ddu-kind-file@~0.9.0";
 
 import type { Denops } from "jsr:@denops/core@~7.0.0";
-import * as fn from "jsr:@denops/std@~7.1.0/function";
+import * as fn from "jsr:@denops/std@~7.3.0/function";
 
 type Params = {
   range: "window" | "buffer";
+  ignoreEmptyInput: boolean;
 };
 
 export class Source extends BaseSource<Params> {
@@ -37,6 +38,11 @@ export class Source extends BaseSource<Params> {
 
     return new ReadableStream({
       async start(controller) {
+        if (args.sourceParams.ignoreEmptyInput && args.context.input === "") {
+          controller.close();
+          return;
+        }
+
         const bufnr = args.context.bufNr;
         const bufLines = await fn.getbufline(args.denops, bufnr, begin, end);
         const padding = "0".repeat(String(bufLines.length).length);
@@ -66,6 +72,7 @@ export class Source extends BaseSource<Params> {
   override params(): Params {
     return {
       range: "buffer",
+      ignoreEmptyInput: false,
     };
   }
 }

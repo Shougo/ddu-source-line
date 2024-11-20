@@ -3,7 +3,7 @@
 Author: Shougo <Shougo.Matsu at gmail.com>
 License: MIT license
 
-CONTENTS					*ddu-source-line-contents*
+CONTENTS                                            *ddu-source-line-contents*
 
 Introduction		|ddu-source-line-introduction|
 Install			|ddu-source-line-install|
@@ -12,13 +12,13 @@ Params			|ddu-source-line-params|
 
 
 ==============================================================================
-INTRODUCTION					*ddu-source-line-introduction*
+INTRODUCTION                                    *ddu-source-line-introduction*
 
 This source collects current buffer lines.
 
 
 ==============================================================================
-INSTALL						*ddu-source-line-install*
+INSTALL                                              *ddu-source-line-install*
 
 Please install both "ddu.vim" and "denops.vim" and "ddu-kind-file".
 
@@ -28,22 +28,28 @@ https://github.com/Shougo/ddu-kind-file
 
 
 ==============================================================================
-EXAMPLES					*ddu-source-line-examples*
+EXAMPLES                                            *ddu-source-line-examples*
 >
 	call ddu#start(#{ sources: [#{ name: 'line' }] })
 <
 
 ==============================================================================
-PARAMS						*ddu-source-line-params*
+PARAMS                                                *ddu-source-line-params*
 
-						*ddu-source-line-param-range*
+                                      *ddu-source-line-param-ignoreEmptyInput*
+ignoreEmptyInput (boolean)
+		Don't gather items if |ddu-option-input| is empty.
+
+		Default: v:false
+
+                                                 *ddu-source-line-param-range*
 range	(string)
-	Search texts range.
+		Search texts range.
 
-	"window": current window range
-	"buffer": current buffer range
+		"window": current window range
+		"buffer": current buffer range
 
-	Default: "buffer"
+		Default: "buffer"
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
