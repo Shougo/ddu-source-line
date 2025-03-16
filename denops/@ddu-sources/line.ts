@@ -1,40 +1,30 @@
-import { type Context, type Item } from "jsr:@shougo/ddu-vim@~6.4.0/types";
-import { BaseSource } from "jsr:@shougo/ddu-vim@~6.4.0/source";
+import { type Context, type Item } from "jsr:@shougo/ddu-vim@~10.1.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~10.1.0/source";
 
 import { type ActionData } from "jsr:@shougo/ddu-kind-file@~0.9.0";
 
 import type { Denops } from "jsr:@denops/core@~7.0.0";
-import * as fn from "jsr:@denops/std@~7.3.0/function";
+import * as fn from "jsr:@denops/std@~7.5.0/function";
 
 type Params = {
-  range: "window" | "buffer";
+  bufNr: number;
   ignoreEmptyInput: boolean;
+  range: "window" | "buffer";
+  winId: number;
 };
 
 export class Source extends BaseSource<Params> {
   override kind = "file";
-
-  #winBegin = 0;
-  #winEnd = 0;
-  #lineNr = 0;
-
-  override async onInit(args: {
-    denops: Denops;
-  }): Promise<void> {
-    this.#winBegin = await fn.line(args.denops, "w0");
-    this.#winEnd = await fn.line(args.denops, "w$");
-    this.#lineNr = await fn.line(args.denops, ".");
-  }
 
   override gather(args: {
     denops: Denops;
     context: Context;
     sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
-    const windowRange = args.sourceParams?.range == "window";
-    const begin = windowRange ? this.#winBegin : 1;
-    const end = windowRange ? this.#winEnd : "$";
-    const lineNr = this.#lineNr;
+    const windowRange = args.sourceParams.range == "window";
+    const winId = args.sourceParams.winId > 0
+      ? args.sourceParams.winId
+      : args.context.winId;
 
     return new ReadableStream({
       async start(controller) {
@@ -43,7 +33,13 @@ export class Source extends BaseSource<Params> {
           return;
         }
 
-        const bufnr = args.context.bufNr;
+        const begin = windowRange ? await fn.line(args.denops, "w0", winId) : 1;
+        const end = windowRange ? await fn.line(args.denops, "w$", winId) : "$";
+        const lineNr = await fn.line(args.denops, ".", winId);
+
+        const bufnr = args.sourceParams.bufNr > 0
+          ? args.sourceParams.bufNr
+          : args.context.bufNr;
         const bufLines = await fn.getbufline(args.denops, bufnr, begin, end);
         const padding = "0".repeat(String(bufLines.length).length);
         const slice = -1 * padding.length;
@@ -71,8 +67,10 @@ export class Source extends BaseSource<Params> {
 
   override params(): Params {
     return {
-      range: "buffer",
+      bufNr: 0,
       ignoreEmptyInput: false,
+      range: "buffer",
+      winId: 0,
     };
   }
 }
