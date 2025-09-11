@@ -54,11 +54,10 @@ export class Source extends BaseSource<Params> {
           };
         });
 
-        controller.enqueue(
-          items.filter((item) => item?.action?.lineNr >= lineNr).concat(
-            items.filter((item) => item?.action?.lineNr < lineNr),
-          ),
-        );
+        controller.enqueue([
+          ...items.filter((item) => item?.action?.lineNr >= lineNr),
+          ...items.filter((item) => item?.action?.lineNr < lineNr),
+        ]);
 
         controller.close();
       },
