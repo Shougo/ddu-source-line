@@ -42,8 +42,10 @@ export class Source extends BaseSource<Params> {
           : args.context.bufNr;
         const bufLines = await fn.getbufline(args.denops, bufnr, begin, end);
         const lineNumberWidth = String(bufLines.length).length;
-        const formatLineNr = (lineNr: number): string =>
-          String(lineNr).padStart(lineNumberWidth, "0").slice(-lineNumberWidth);
+        const formatLineNr = (lineNr: number): string => {
+          const lineNrText = "0".repeat(lineNumberWidth) + String(lineNr);
+          return lineNrText.slice(-lineNumberWidth);
+        };
         const items = bufLines.map((line, i) => {
           return {
             word: line,
