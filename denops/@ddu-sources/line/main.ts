@@ -21,7 +21,7 @@ export class Source extends BaseSource<Params> {
     context: Context;
     sourceParams: Params;
   }): ReadableStream<Item<ActionData>[]> {
-    const windowRange = args.sourceParams.range == "window";
+    const windowRange = args.sourceParams.range === "window";
     const winId = args.sourceParams.winId > 0
       ? args.sourceParams.winId
       : args.context.winId;
@@ -41,12 +41,15 @@ export class Source extends BaseSource<Params> {
           ? args.sourceParams.bufNr
           : args.context.bufNr;
         const bufLines = await fn.getbufline(args.denops, bufnr, begin, end);
-        const padding = "0".repeat(String(bufLines.length).length);
-        const slice = -1 * padding.length;
+        const lineNumberWidth = String(bufLines.length).length;
+        const formatLineNr = (lineNr: number): string => {
+          const lineNrText = "0".repeat(lineNumberWidth) + String(lineNr);
+          return lineNrText.slice(-lineNumberWidth);
+        };
         const items = bufLines.map((line, i) => {
           return {
             word: line,
-            display: `${(padding + (i + begin)).slice(slice)}: ${line}`,
+            display: `${formatLineNr(i + begin)}: ${line}`,
             action: {
               bufNr: bufnr,
               lineNr: i + begin,
@@ -54,10 +57,17 @@ export class Source extends BaseSource<Params> {
           };
         });
 
-        controller.enqueue([
-          ...items.filter((item) => item?.action?.lineNr >= lineNr),
-          ...items.filter((item) => item?.action?.lineNr < lineNr),
-        ]);
+        const beforeCurrentLine: Item<ActionData>[] = [];
+        const fromCurrentLine: Item<ActionData>[] = [];
+        for (const item of items) {
+          if (item.action.lineNr >= lineNr) {
+            fromCurrentLine.push(item);
+          } else {
+            beforeCurrentLine.push(item);
+          }
+        }
+
+        controller.enqueue([...fromCurrentLine, ...beforeCurrentLine]);
 
         controller.close();
       },
